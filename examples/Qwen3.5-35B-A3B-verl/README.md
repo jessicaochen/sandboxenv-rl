@@ -27,8 +27,10 @@ Provider, task, dataset and image tooling: [`integrations/uni-agent`](../../inte
   6 GiB is a booking, not a hard cap: SWE test suites peak well above it, and if the sum
   exceeds the worker's limit the worker is OOM-killed with everything it hosts (watch
   `kubectl -n ate-env get pods` restarts; 10 per node still did that in validation).
-  With other worker sizes, capacity = replicas x floor(worker CPU / 2); 10 workers of
-  27 CPU (13 environments each) carried 128 sessions.
+  With other worker sizes, CPU capacity = replicas x floor(worker CPU / 2), but memory
+  decides: 10 workers of 27 CPU / 108 GiB took 128 sessions (13 environments each) through
+  12 steps, yet six of them were OOM-killed during test-heavy steps, crashing 191 of about
+  1,600 environments. Size by memory (6 per node) or cap `SESSIONS` to that capacity.
 - Per-instance task images reachable by the nodes as digest-pinned references: an
   Artifact Registry remote repository proxying Docker Hub (no copying) or a mirror that
   the node service account can read. Resolving a digest from the prep machine proves
